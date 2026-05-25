@@ -6,62 +6,13 @@ require __DIR__ . '/functions/posts.php';*/
 
 use function CompanyName\Blog\getPosts;
 use function CompanyName\Blog\redirectToError;
+use function CompanyName\Blog\deletePost;
 
-const STATUSES = [
-    'ok' => 'Пост успешно удален',
-];
-$success = isset($_GET['success']) ? (STATUSES[$_GET['success']] ?? null) : null;
+$posts = getPosts();
+$statusMessage = '';
 
-try {
+deletePost($posts, $_GET);
 
-    $posts = getPosts();
-
-    //D - Delete
-    if (isset($_GET['action']) && $_GET['action'] === 'delete') {
-        $id = $_GET['id'] ?? null;
-        if ($id === null || !isset($posts[$id])) {
-            throw new Exception("Пост с ID {$id} не найден.", 404);
-        }
-
-        //deletePost($id)
-        unset($posts[$id]);
-        file_put_contents(__DIR__ . '/data/posts.json', json_encode($posts, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-
-        if (isset($_GET['ajax'])) {
-            if (empty($errors)) {
-                $result = [
-                    'status' => 'success'
-                ];
-            } else {
-                $result = [
-                    'status' => 'error'
-                ];
-            }
-
-            header('Content-Type: application/json');
-            echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-            exit;
-        }
-
-        header("Location: /posts.php?success=ok");
-        die();
-    }
-
-} catch (Exception $e) {
-    $errorId = 'ERR_' . date('Ymd_His') . '_' . uniqid();
-
-    $errorDetails = [
-        'message' => $e->getMessage(),
-        'errorId' => $errorId,
-        'line' => $e->getLine(),
-        'trace' => $e->getTraceAsString()
-    ];
-    error_log(json_encode($errorDetails, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
-    //Редирект
-    redirectToError(500, $e->getMessage(), $errorId);
-
-}
 ?>
 <!doctype html>
 <html lang="en">
@@ -109,62 +60,6 @@ try {
             </div>
         </div>
     </div>
-<script>
-    // window.onload = function () {
-    //     document.querySelectorAll('.deleteBtn').forEach(button => {
-    //         button.onclick = function () {
-    //             const id = this.getAttribute('data-id');
-    //             (
-    //                 async () => {
-    //                     try {
-    //                         const response = await fetch(`?action=delete&id=${id}&ajax`);
-    //                         const result = await response.json();
-    //                         switch (result.status) {
-    //                             case 'success':
-    //                                 document.getElementById(id).remove();
-    //                                 break;
-    //                             case 'error':
-    //                                 console.error('Ошибка: не могу удалить');
-    //                                 break;
-    //                             default:
-    //                                 console.error('Ошибка: не верный формат ответа');
-    //                         }
-
-    //                     } catch (error) {
-    //                         console.error('Ошибка:', error);
-    //                     }
-    //                 }
-    //             )();
-    //         }
-    //     });
-
-    // }
-// по модальному окну
- 
-
-    //     function deleteItem() {
-    //          Swal.fire({
-    //     title: 'Удалить пост?',
-    //     showCancelButton: true,
-    //     confirmButtonText: 'Удалить',
-    // }).then((result) => {
-    //     if (result.isConfirmed) {
-    //         fetch(`/posts.php?action=delete&ajax=1&id=${postId}`)
-    //             .then(response => response.json())
-    //             .then(data => {
-    //                 if (data.status === 'success') {
-    //                     Swal.fire('Успешно!', 'Пост удален', 'success');
-    //                     // Здесь можно удалить элемент из DOM, например: document.getElementById('post-' + postId).remove();
-    //                 } else {
-    //                     Swal.fire('Ошибка!', 'Не удалось удалить пост', 'error');
-    //                 }
-    //             });
-    //     }
-    // });
-    //         closeModal();
-    //     }
-
-</script>
 <script src="./script.js"></script>    
 </body>
 </html>
