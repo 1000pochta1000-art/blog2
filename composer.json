@@ -1,0 +1,22 @@
+{
+    "name": "inf/blog",
+    "autoload": {
+        "files": [
+            "functions/app.php",
+            "functions/categories.php",
+            "functions/posts.php"
+        ],
+        "psr-4": {
+            "Inf\\Blog\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Olga",
+            "email": "dekabr121213@yandex.ru"
+        }
+    ],
+    "require": {
+        "symfony/var-dumper": "*"
+    }
+}
